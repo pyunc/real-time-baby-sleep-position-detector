@@ -1,0 +1,184 @@
+<!doctype html>
+<html>
+<head>
+    <title>real-time-baby-sleep-position-detector</title>
+    <style>
+        #data {
+            text-align: center;
+            background-color: white;
+        }
+        body {
+            background-color: #318ea7;
+            margin: 0;
+        }
+
+        /* Media queries for mobile devices */
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+            .item {
+                margin-bottom: 10px;
+            }
+            h2 {
+                font-size: 20px;
+            }
+        }
+        
+        /* Samsung Galaxy S9 Mockup */
+        .s9-mockup {
+            position: relative;
+            width: 400px;
+            height: 800px;
+            margin: 0 auto;
+            background-color: #000000;
+            border-radius: 24px;
+            overflow: hidden;
+        }
+
+        .s9-mockup:before {
+            content: "";
+            position: absolute;
+            top: 30px;
+            left: 20px;
+            right: 20px;
+            bottom: 30px;
+            background-color: #F2F2F2;
+            border-radius: 16px;
+        }
+
+        .s9-mockup #content {
+            position: absolute;
+            top: 40px;
+            left: 30px;
+            right: 30px;
+            bottom: 40px;
+            background-color: #fff;
+            overflow: auto;
+        }
+
+        .status-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .status-item img {
+            max-width: 300px;
+            max-height: 300px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="s9-mockup">
+        <div id="content">
+            <h2 style="text-align: center; padding: 2px; margin: 0 auto; position: relative;background-color: #443089;border-radius: 8px;max-width: 320px">🧭</h2>
+    
+            <script src="http://code.jquery.com/jquery-latest.js"></script>
+            
+            <script>
+                function BabyStatusCheck(last_status) {
+                    var request = new XMLHttpRequest();
+                    request.open("GET", "/", true);
+                    request.setRequestHeader("Content-Type", "application/json")
+                    request.send(JSON.stringify(payload));
+                }
+            </script>
+    
+            <div id="data">
+                <div id="status-container"></div>
+            </div>
+            
+    
+            {% for t, s, timestamp in data %}
+                <script>
+                    $("#status-container div").remove();
+    
+                    // Add the logic to display different emojis based on the value of 't'
+                    var output = "";
+                    var imageSrc = "";
+                    var activity = "";
+
+                    if ("{{ t }}" === "back") {
+                        imageSrc = "{{ url_for('static', filename='img/back_full.jpeg') }}"; // Path to the back PNG file
+                        output = 'on my back safe 🦊';
+                    } else if ("{{ t }}" === "side") {
+                        imageSrc = "{{ url_for('static', filename='img/side_full.jpeg') }}"; // Path to the side PNG file
+                        output = 'on my side - alert sent ⚠️';
+                    } else if ("{{ t }}" === "prone") {
+                        imageSrc = "{{ url_for('static', filename='img/prone_full.jpeg') }}"; // Path to the prone PNG file
+                        output = 'on prone position - alert sent 🚨';
+                    } else if ("{{ t }}" === "stand") {
+                        imageSrc = "{{ url_for('static', filename='img/stand_full.jpeg') }}"; // Path to the stand PNG file
+                        output = 'in standing position 💡';
+                    }
+
+                            // Determine activity level based on the value of 's'
+                    var activity = "{{ s }}";
+                    if (parseFloat(activity) < 0.5) {
+                        activityLevel = "Low 🍃";
+                    } else if (parseFloat(activity) >= 0.5 && parseFloat(activity) <= 1.0) {
+                        activityLevel = "Medium 😊";
+                    } else if (parseFloat(activity) > 1.0) {
+                        activityLevel = "High ⚡";
+                    }
+    
+                    // Create the divs for imageSrc, output, and activity
+                    var imageDiv = `
+                        <div id="image-container" style="background-color: #white">
+                            <img src="${imageSrc}" alt="Baby Image" onclick="BabyStatusCheck('{{ t }}')" 
+                            style="max-width: 500px; max-height: 320px;border-radius: 8px">
+                        </div>
+                    `;
+    
+                    var PositionDiv = `
+                        <div id="output-container" style="align-items: center;">
+                            <p style="text-align: center; margin-top: 10px;border-radius: 8px">
+                                <br> </br> 
+                                <span style="padding: 5px; background-color: #c2c3d5; display: inline-block; width: 300px;">Position</span>
+                                <br> </br> 
+                                <span style="padding: 5px;">${output}</span>
+                            </p>
+                        </div>
+                    `;
+
+                    var ActivityDiv = `
+                        <div id="output-container" style="align-items: center">
+                            <p style="text-align: center; margin-top: 10px;">
+                                <span style="padding: 5px; background-color: #c2c3d5; display: inline-block; width: 300px;">Activity level</span>
+                                <br> </br> 
+                                <span style="padding: 5px;">${activityLevel}</span>
+                            </p>
+                        </div>
+                    `;
+                    var last_update_time_stamp = "{{ timestamp }}";
+                    var TimeStampDiv = `
+                        <div id="output-container" style="align-items: center">
+                            <p style="text-align: center; margin-top: 10px;">
+                                <span style="padding: 5px; background-color: #c2c3d5; display: inline-block; width: 300px;">Last update</span>
+                                <br> </br>
+                                <span style="padding: 5px;">${last_update_time_stamp} 📖</span>
+                            </p>
+                        </div>
+                    `;
+    
+                    // Append the divs to the status-container
+                    $("#status-container").append(`
+                        <div class="frame-container">
+                            ${imageDiv}
+                            ${PositionDiv}
+                            ${ActivityDiv}
+                            ${TimeStampDiv}
+                        </div>
+                    `);
+                </script>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
+
+
+<!-- width: 400px;
+height: 800px; -->
